@@ -1,7 +1,19 @@
 # dsh-merge-conflicts
 
+<p align="center">
+  <strong>Deepseek Harness Plugin for Viewing and Resolving Git Merge Conflicts</strong>
+</p>
+
+<p align="center">
+  <img alt="CI Status" src="https://github.com/Fudanyrd/dsh-merge-conflicts/actions/workflows/ci.yml/badge.svg" />
+  <img alt="dsh-plugin" src="https://img.shields.io/badge/GitHub-dsh--plugin-blue" />
+  <img alt="better-sidebar" src="https://img.shields.io/badge/better--sidebar-%5E0.12.0-6e56cf" />
+</p>
+
+<!--
 [![dsh-plugin](https://img.shields.io/badge/GitHub-dsh--plugin-blue)](https://github.com/topics/dsh-plugin)
 [![better-sidebar](https://img.shields.io/badge/better--sidebar-%5E0.12.0-6e56cf)](https://github.com/omdsh-dev/DSH-better-sidebar)  
+-->
 
 A [dsh-better-sidebar](https://github.com/omdsh-dev/DSH-better-sidebar) consumer
 plugin that adds a **Merge conflicts** tab to the DSH right sidebar. It lists
