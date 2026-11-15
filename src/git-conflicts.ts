@@ -91,25 +91,48 @@ export function runGit(cwd: string, args: string[]): Promise<string> {
   });
 }
 
+/**
+ * I/O boundaries used by the conflict helpers. Tests can inject fakes so no
+ * `git` process is spawned and no file is read or written.
+ */
+export interface ConflictDeps {
+  /** Run a git command from `cwd` and resolve its stdout (reject on failure). */
+  git(cwd: string, args: string[]): Promise<string>
+  /** Read a UTF-8 file; rejects when the file does not exist. */
+  readFile(path: string): Promise<string>
+  /** Write a UTF-8 file. */
+  writeFile(path: string, data: string): Promise<void>
+  /** List directory entry names. */
+  readDir(path: string): Promise<string[]>
+}
+
+/** Real process/filesystem implementation used by default. */
+export const defaultConflictDeps: ConflictDeps = {
+  git: runGit,
+  readFile: (path) => readFile(path, 'utf8'),
+  writeFile: (path, data) => writeFile(path, data, 'utf8'),
+  readDir: (path) => readdir(path),
+};
+
 /** Resolve a repository root for `cwd` (a bare cwd that is not a repo → git-error). */
-export async function repoRootOf(cwd: string): Promise<string> {
-  const out = await runGit(cwd, ['rev-parse', '--show-toplevel']);
+export async function repoRootOf(cwd: string, deps: ConflictDeps = defaultConflictDeps): Promise<string> {
+  const out = await deps.git(cwd, ['rev-parse', '--show-toplevel']);
   const root = out.trim();
   if (root === '') {throw new ConflictError('not-repo', `not a git repository: ${cwd}`, 409);}
   return root;
 }
 
 /** Whether the repository is mid-merge or mid-rebase. */
-export async function operationOf(root: string): Promise<'merge' | 'rebase' | undefined> {
+export async function operationOf(root: string, deps: ConflictDeps = defaultConflictDeps): Promise<'merge' | 'rebase' | undefined> {
   let gitDir: string;
   try {
-    gitDir = (await runGit(root, ['rev-parse', '--absolute-git-dir'])).trim();
+    gitDir = (await deps.git(root, ['rev-parse', '--absolute-git-dir'])).trim();
   } catch {
     return undefined;
   }
   let names: string[] = [];
   try {
-    names = await readdir(gitDir);
+    names = await deps.readDir(gitDir);
   } catch {
     return undefined;
   }
@@ -123,11 +146,11 @@ export async function operationOf(root: string): Promise<'merge' | 'rebase' | un
  * Only `u` records are conflicts; the path is the field after the 10th space
  * (u xy sub m1 m2 m3 mW h1 h2 h3 <path>).
  */
-export async function listConflicts(cwd: string): Promise<{ root: string; operation: ConflictDetail['operation']; conflicts: ConflictEntry[] }> {
-  const root = await repoRootOf(cwd);
+export async function listConflicts(cwd: string, deps: ConflictDeps = defaultConflictDeps): Promise<{ root: string; operation: ConflictDetail['operation']; conflicts: ConflictEntry[] }> {
+  const root = await repoRootOf(cwd, deps);
   const [status, operation] = await Promise.all([
-    runGit(root, ['status', '--porcelain=v2', '-z', '--untracked-files=no']),
-    operationOf(root),
+    deps.git(root, ['status', '--porcelain=v2', '-z', '--untracked-files=no']),
+    operationOf(root, deps),
   ]);
   const conflicts: ConflictEntry[] = [];
   for (const record of status.split('\0')) {
@@ -155,27 +178,27 @@ export async function listConflicts(cwd: string): Promise<{ root: string; operat
 }
 
 /** Read one side's blob from the index (`git show :<stage>:<path>`), null when missing. */
-export async function sideOf(root: string, stage: 2 | 3, rel: string): Promise<string | null> {
+export async function sideOf(root: string, stage: 2 | 3, rel: string, deps: ConflictDeps = defaultConflictDeps): Promise<string | null> {
   try {
-    return await runGit(root, ['show', `:${stage}:${rel}`]);
+    return await deps.git(root, ['show', `:${stage}:${rel}`]);
   } catch {
     return null;
   }
 }
 
 /** Read the full detail of one conflicted file. */
-export async function readConflict(cwd: string, absPath: string): Promise<ConflictDetail> {
-  const root = await repoRootOf(cwd);
+export async function readConflict(cwd: string, absPath: string, deps: ConflictDeps = defaultConflictDeps): Promise<ConflictDetail> {
+  const root = await repoRootOf(cwd, deps);
   const rel = toGitPath(relative(root, absPath));
-  const operation = await operationOf(root);
+  const operation = await operationOf(root, deps);
   const currentStage: 2 | 3 = operation === 'rebase' ? 3 : 2;
   const incomingStage: 2 | 3 = operation === 'rebase' ? 2 : 3;
 
-  const content = await readFile(absPath, 'utf8').catch(() => null);
+  const content = await deps.readFile(absPath).catch(() => null);
   const [current, incoming, status] = await Promise.all([
-    sideOf(root, currentStage, rel),
-    sideOf(root, incomingStage, rel),
-    runGit(root, ['status', '--porcelain=v2', '-z', '--untracked-files=no']),
+    sideOf(root, currentStage, rel, deps),
+    sideOf(root, incomingStage, rel, deps),
+    deps.git(root, ['status', '--porcelain=v2', '-z', '--untracked-files=no']),
   ]);
 
   let xy = 'UU';
@@ -271,9 +294,9 @@ export function resolveBothMarkers(text: string): string | null {
 }
 
 /** Whether an index stage blob exists for a path (`git cat-file -e :<stage>:<path>`). */
-async function stageExists(root: string, stage: 2 | 3, rel: string): Promise<boolean> {
+async function stageExists(root: string, stage: 2 | 3, rel: string, deps: ConflictDeps): Promise<boolean> {
   try {
-    await runGit(root, ['cat-file', '-e', `:${stage}:${rel}`]);
+    await deps.git(root, ['cat-file', '-e', `:${stage}:${rel}`]);
     return true;
   } catch {
     return false;
@@ -288,25 +311,25 @@ async function stageExists(root: string, stage: 2 | 3, rel: string): Promise<boo
  * `git checkout --ours/--theirs` alone does NOT stage the result (verified:
  * the path stays `UU`), so each branch ends with an explicit stage.
  */
-async function resolveSide(root: string, rel: string, stage: 2 | 3): Promise<void> {
-  if (await stageExists(root, stage, rel)) {
-    await runGit(root, ['checkout', stage === 2 ? '--ours' : '--theirs', '--', rel]);
-    await runGit(root, ['add', '--', rel]);
+async function resolveSide(root: string, rel: string, stage: 2 | 3, deps: ConflictDeps): Promise<void> {
+  if (await stageExists(root, stage, rel, deps)) {
+    await deps.git(root, ['checkout', stage === 2 ? '--ours' : '--theirs', '--', rel]);
+    await deps.git(root, ['add', '--', rel]);
     return;
   }
   // That side deleted the file: `git rm -f` removes the working-tree copy and
   // stages the deletion, resolving the unmerged entry.
-  await runGit(root, ['rm', '-f', '--', rel]);
+  await deps.git(root, ['rm', '-f', '--', rel]);
 }
 
 /** Resolve one conflict. Returns the resolved absolute path. */
-export async function resolveConflict(cwd: string, absPath: string, mode: ResolveMode): Promise<{ path: string }> {
-  const root = await repoRootOf(cwd);
+export async function resolveConflict(cwd: string, absPath: string, mode: ResolveMode, deps: ConflictDeps = defaultConflictDeps): Promise<{ path: string }> {
+  const root = await repoRootOf(cwd, deps);
   const rel = toGitPath(relative(root, absPath));
-  const operation = await operationOf(root);
+  const operation = await operationOf(root, deps);
 
   if (mode === 'both') {
-    const raw = await readFile(absPath, 'utf8').catch(() => null);
+    const raw = await deps.readFile(absPath).catch(() => null);
     if (raw === null) {
       throw new ConflictError('no-markers', 'the file is absent (delete/modify conflict); use "current" or "incoming"');
     }
@@ -314,8 +337,8 @@ export async function resolveConflict(cwd: string, absPath: string, mode: Resolv
     if (resolved === null) {
       throw new ConflictError('no-markers', 'no conflict markers found; use "current" or "incoming" for this conflict');
     }
-    await writeFile(absPath, resolved, 'utf8');
-    await runGit(root, ['add', '--', rel]);
+    await deps.writeFile(absPath, resolved);
+    await deps.git(root, ['add', '--', rel]);
     return { path: absPath };
   }
 
@@ -324,7 +347,7 @@ export async function resolveConflict(cwd: string, absPath: string, mode: Resolv
   // replayed.
   const currentStage: 2 | 3 = operation === 'rebase' ? 3 : 2;
   const incomingStage: 2 | 3 = operation === 'rebase' ? 2 : 3;
-  await resolveSide(root, rel, mode === 'current' ? currentStage : incomingStage);
+  await resolveSide(root, rel, mode === 'current' ? currentStage : incomingStage, deps);
   return { path: absPath };
 }
 
