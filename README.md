@@ -76,8 +76,9 @@ pnpm build     # tsc declarations + tsdown (lib/index.js + lib/client.js)
 ```
 
 `pnpm typecheck` runs the standalone type gate. The client bundle registers
-with `window.__ModuleLoader__.load({ id: 'dsh-external/dsh-merge-conflicts', … })`
-and externals `react` / `cordis` resolve through the shell module table.
+with `window.__ModuleLoader__.load({ id: 'dsh-merge-conflicts', … })` (the
+package name — the profile channel keys client-modules rows on it) and
+externals `react` / `cordis` resolve through the shell module table.
 
 ## License
 

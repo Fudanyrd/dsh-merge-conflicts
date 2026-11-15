@@ -21,7 +21,6 @@
     "lib/client.js",
     "lib/types/**/*.d.ts",
     "src",
-    "dsh.plugin.json",
     "README.md",
     "LICENSE",
     "cordis.patch.yml"
@@ -37,7 +36,8 @@
       "platform": "web",
       "inject": [
         "@deepseek-ai/dsh-client-runtime",
-        "@deepseek-ai/dsh-client-ui-primitives"
+        "@deepseek-ai/dsh-client-ui-primitives",
+        "dsh-better-sidebar"
       ] 
     },
     "manifestVersion": 1

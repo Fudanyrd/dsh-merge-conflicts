@@ -2,7 +2,7 @@
  * Build for dsh-merge-conflicts:
  *   - lib/index.js  — host half (ESM, Node): the /merge-conflicts/api routes.
  *   - lib/client.js — browser client (CJS closure factory) registered with
- *     `window.__ModuleLoader__.load({ id: <manifest id>, factory })`.
+ *     `window.__ModuleLoader__.load({ id: <package name>, factory })`.
  *
  * The client bundle follows the official DSH client-bundle preset:
  *   - `react`, `react/jsx-runtime`, `react-dom`, `cordis` resolve through the
@@ -10,6 +10,13 @@
  *   - everything else is inlined,
  *   - CSS Modules compile to hashed class maps and inject a <style data-plugin>
  *     tag at factory execution.
+ *
+ * `PLUGIN_ID` must be the package name (`dsh-merge-conflicts`): for a plugin
+ * mounted through the profile channel (cordis.patch.yml insert), the DSH
+ * client-modules host half keys the boot graph row on `package.json` `name`,
+ * and the browser `arrive()` check requires the factory id to equal that row
+ * id. The `dsh-external/…` id is only for the separate plugin-registry channel
+ * (`dsh.plugin.json`), which this package does not currently ship.
  */
 import { readFile } from 'node:fs/promises'
 import { basename, dirname, resolve as resolvePath } from 'node:path'
@@ -23,7 +30,7 @@ const NODE_BUILTINS = new Set([...builtinModules, ...builtinModules.map(id => `n
 
 const CLIENT_EXTERNALS = ['react', 'react/jsx-runtime', 'react-dom', 'react-dom/client', 'cordis']
 
-const PLUGIN_ID = 'dsh-external/dsh-merge-conflicts'
+const PLUGIN_ID = 'dsh-merge-conflicts'
 
 const CSS_VIRTUAL_PREFIX = '\0dsh-css:'
 const CSS_VIRTUAL_SUFFIX = '.mjs'
