@@ -1,0 +1,5 @@
+# Sample row for manual profile mounting (append to ~/.dsh/profiles/web/cordis.patch.yml).
+# The id must match the row id used by the profile; `name` is the npm package.
+- insert:
+  - id: dsh-merge-conflicts
+    name: dsh-merge-conflicts

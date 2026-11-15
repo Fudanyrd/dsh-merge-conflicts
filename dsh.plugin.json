@@ -1,0 +1,16 @@
+{
+  "id": "dsh-external/dsh-merge-conflicts",
+  "version": "0.1.0",
+  "main": "./lib/index.js",
+  "description": "List and resolve git merge conflicts from the sidebar: accept current / incoming / both changes.",
+  "engines": {
+    "dsh": ">=0.2.2-rc.1"
+  },
+  "contributes": {
+    "tools": [],
+    "skills": []
+  },
+  "client": {
+    "main": "./lib/client.js"
+  }
+}

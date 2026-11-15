@@ -1,0 +1,299 @@
+/* dsh-merge-conflicts sidebar tab. Visual values only consume DSH theme
+   tokens (--dsw-alias-* / --dsw-font-* / --dsh-content-font-*); no hardcoded
+   colors. Follows the better-sidebar skin contract. */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: var(--dsw-alias-bg-layer-1);
+  color: var(--dsw-alias-label-primary);
+  font-size: var(--dsw-font-s-14, 14px);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--dsw-alias-border-l2);
+  flex: 0 0 auto;
+}
+
+.title {
+  font-weight: 600;
+  flex: 1 1 auto;
+}
+
+.opBadge {
+  font-size: var(--dsw-font-xxs-12, 12px);
+  padding: 1px 6px;
+  border-radius: 999px;
+  border: 1px solid var(--dsw-alias-border-l2);
+  color: var(--dsw-alias-label-secondary);
+}
+
+.iconBtn {
+  border: none;
+  background: transparent;
+  color: var(--dsw-alias-label-secondary);
+  cursor: pointer;
+  font-size: var(--dsw-font-s-14, 14px);
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.iconBtn:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+  color: var(--dsw-alias-label-primary);
+}
+
+.error {
+  margin: 8px 10px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--dsw-alias-state-error-primary);
+  color: var(--dsw-alias-state-error-primary);
+  font-size: var(--dsw-font-xs-13, 13px);
+  white-space: pre-wrap;
+}
+
+.hint {
+  padding: 16px 10px;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: var(--dsw-font-xs-13, 13px);
+}
+
+.empty {
+  padding: 24px 16px;
+  text-align: center;
+}
+
+.emptyTitle {
+  color: var(--dsw-alias-label-secondary);
+  font-size: var(--dsw-font-s-14, 14px);
+  margin-bottom: 6px;
+}
+
+.emptyHint {
+  color: var(--dsw-alias-label-tertiary);
+  font-size: var(--dsw-font-xs-13, 13px);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+  overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 7px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  color: inherit;
+}
+
+.row:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.rowCode {
+  flex: 0 0 auto;
+  min-width: 22px;
+  text-align: center;
+  font-family: var(--dsw-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: var(--dsw-font-xxs-12, 12px);
+  padding: 1px 4px;
+  border-radius: 4px;
+  color: var(--dsw-alias-state-warn-label, var(--dsw-alias-state-warn-primary));
+  background: var(--dsw-alias-state-warn-tertiary);
+}
+
+.rowPath {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--dsw-font-s-14, 14px);
+}
+
+.rowLabel {
+  flex: 0 0 auto;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: var(--dsw-font-xxs-12, 12px);
+  max-width: 40%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.detail {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.detailHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--dsw-alias-border-l2);
+  flex: 0 0 auto;
+}
+
+.detailCode {
+  flex: 0 0 auto;
+  font-family: var(--dsw-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: var(--dsw-font-xxs-12, 12px);
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: var(--dsw-alias-state-warn-label, var(--dsw-alias-state-warn-primary));
+  background: var(--dsw-alias-state-warn-tertiary);
+}
+
+.detailPath {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--dsw-font-s-14, 14px);
+  font-weight: 600;
+}
+
+.toggle {
+  flex: 0 0 auto;
+  border: 1px solid var(--dsw-alias-border-l2);
+  background: transparent;
+  color: var(--dsw-alias-label-secondary);
+  cursor: pointer;
+  font-size: var(--dsw-font-xxs-12, 12px);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.toggle:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+  color: var(--dsw-alias-label-primary);
+}
+
+.detailMeta {
+  padding: 4px 10px 0;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: var(--dsw-font-xxs-12, 12px);
+  flex: 0 0 auto;
+}
+
+.actions {
+  display: flex;
+  gap: 6px;
+  padding: 8px 10px;
+  flex: 0 0 auto;
+}
+
+.actionBtn {
+  flex: 1 1 0;
+  border: 1px solid var(--dsw-alias-border-l2);
+  background: var(--dsw-alias-button-ghost-active-fill, transparent);
+  color: var(--dsw-alias-label-primary);
+  cursor: pointer;
+  font-size: var(--dsw-font-xs-13, 13px);
+  padding: 5px 6px;
+  border-radius: 6px;
+}
+
+.actionBtn:hover:not(:disabled) {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.actionBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.sides {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 10px;
+  overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.side {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.sideTitle {
+  font-size: var(--dsw-font-xxs-12, 12px);
+  font-weight: 600;
+  color: var(--dsw-alias-label-secondary);
+  margin-bottom: 4px;
+}
+
+.code {
+  margin: 0;
+  flex: 1 1 auto;
+  overflow: auto;
+  border-radius: 6px;
+  padding: 8px;
+  font-family: var(--dsw-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: var(--dsw-font-xs-13, 13px);
+  line-height: 1.5;
+  white-space: pre;
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-bg-base);
+}
+
+.codeCurrent {
+  border-left: 3px solid var(--dsw-alias-state-success-primary);
+}
+
+.codeIncoming {
+  border-left: 3px solid var(--dsw-alias-state-business-primary);
+}
+
+.raw {
+  margin: 8px 10px;
+  flex: 1 1 auto;
+  overflow: auto;
+  border-radius: 6px;
+  padding: 8px;
+  font-family: var(--dsw-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: var(--dsw-font-xs-13, 13px);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-bg-base);
+}
+
+.markerCurrent {
+  color: var(--dsw-alias-state-success-primary);
+}
+
+.markerIncoming {
+  color: var(--dsw-alias-state-business-primary);
+}
+
+.markerSep {
+  color: var(--dsw-alias-label-tertiary);
+}
