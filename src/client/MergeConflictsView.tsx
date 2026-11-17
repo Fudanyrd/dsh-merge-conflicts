@@ -101,7 +101,7 @@ export function MergeConflictsView({ ctx, scope, visible }: Props) {
   const back = () => { setDetail(null); setSelectedPath(null); setShowRaw(false) }
 
   return (
-    <div className={css.root}>
+    <div className={css.root} data-dsh-merge-conflicts="">
       <header className={css.header}>
         <span className={css.title}>Merge conflicts</span>
         {operationLabel !== undefined && <span className={css.opBadge}>{operationLabel}</span>}
