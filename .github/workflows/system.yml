@@ -1,0 +1,72 @@
+name: Plugin Mount Test
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+      - 'feat/**'
+  workflow_dispatch:
+
+# Cancel a superseded PR run (it is on a stale commit); never cancel a push run.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# Checks that the packed plugin mounts into a REAL DSH instance through the
+# official `dsh plugin add` channel, against pinned deepseek-harness
+# 0.2.2-rc.1 and dsh-better-sidebar 0.32.0.
+jobs:
+  plugin-mount:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # CI runs must never report to the production telemetry endpoint baked
+    # into the DSH composition.
+    env:
+      DSH_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js 26.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 26
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 12
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # lib/ is gitignored; the tarball is produced from this build.
+      - name: Build and pack the npm tarball
+        run: pnpm build && pnpm pack
+
+      # Pin the exact 0.2.2-rc.1 host CLI; never use a dist-tag. NODE_OPTIONS
+      # preserves the heap budget needed for prerelease peer resolution.
+      - name: Install dsh CLI (pinned)
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
+        run: npm install -g @deepseek-ai/dsh@0.2.2-rc.1
+
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      # The script installs dsh-better-sidebar 0.32.0 into the scratch profile
+      # first, then the plugin tarball, boots `dsh web`, and runs the
+      # headless-render lane (tests/e2e).
+      - name: Mount + headless-render smoke
+        run: pnpm test:mount
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore

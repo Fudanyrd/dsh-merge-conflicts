@@ -11,6 +11,7 @@ import {
   type SessionScope,
 } from './api'
 import css from './merge-conflicts.module.css'
+import { HighlightedCode } from './HighlightedCode'
 
 interface Props {
   ctx: Context
@@ -100,7 +101,7 @@ export function MergeConflictsView({ ctx, scope, visible }: Props) {
   const back = () => { setDetail(null); setSelectedPath(null); setShowRaw(false) }
 
   return (
-    <div className={css.root}>
+    <div className={css.root} data-dsh-merge-conflicts="">
       <header className={css.header}>
         <span className={css.title}>Merge conflicts</span>
         {operationLabel !== undefined && <span className={css.opBadge}>{operationLabel}</span>}
@@ -200,11 +201,11 @@ function DetailView(props: {
       </div>
 
       {showRaw
-        ? <RawConflict content={detail.content} />
+        ? <RawConflict path={detail.path} content={detail.content} />
         : (
             <div className={css.sides}>
-              <SidePanel title="Current" text={detail.current} tone="current" />
-              <SidePanel title="Incoming" text={detail.incoming} tone="incoming" />
+              <SidePanel path={detail.path} title="Current" text={detail.current} tone="current" />
+              <SidePanel path={detail.path} title="Incoming" text={detail.incoming} tone="incoming" />
             </div>
           )}
     </div>
@@ -225,33 +226,31 @@ function ActionButton(props: { mode: ResolveMode; label: string; busy: ResolveMo
   )
 }
 
-function SidePanel({ title, text, tone }: { title: string; text: string | null; tone: 'current' | 'incoming' }) {
+function SidePanel({ path, title, text, tone }: { path: string; title: string; text: string | null; tone: 'current' | 'incoming' }) {
   return (
     <div className={css.side}>
       <div className={css.sideTitle}>{title}</div>
       <pre className={`${css.code} ${tone === 'current' ? css.codeCurrent : css.codeIncoming}`}>
-        {text ?? '(no content on this side)'}
+        {text === null ? '(no content on this side)' : <HighlightedCode path={path} text={text} />}
       </pre>
     </div>
   )
 }
 
-function RawConflict({ content }: { content: string | null }) {
+function RawConflict({ path, content }: { path: string; content: string | null }) {
   if (content === null) return <div className={css.hint}>The file does not exist in the working tree.</div>
-  const lines = content.split('\n')
   return (
     <pre className={css.raw}>
-      {lines.map((line, index) => {
-        let cls: string | undefined
-        if (/^<{7}( |$)/.test(line) || /^\|{7}( |$)/.test(line)) cls = css.markerCurrent
-        else if (/^={7}\s*$/.test(line)) cls = css.markerSep
-        else if (/^>{7}( |$)/.test(line)) cls = css.markerIncoming
-        return (
-          <span key={index} className={cls}>
-            {line}{index < lines.length - 1 ? '\n' : ''}
-          </span>
-        )
-      })}
+      <HighlightedCode
+        path={path}
+        text={content}
+        lineClass={(line) => {
+          if (/^<{7}( |$)/.test(line.text) || /^\|{7}( |$)/.test(line.text)) return css.markerCurrent
+          if (/^={7}\s*$/.test(line.text)) return css.markerSep
+          if (/^>{7}( |$)/.test(line.text)) return css.markerIncoming
+          return undefined
+        }}
+      />
     </pre>
   )
 }

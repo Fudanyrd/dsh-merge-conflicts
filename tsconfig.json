@@ -16,5 +16,5 @@
     "noEmit": true,
     "types": ["node"]
   },
-  "include": ["src", "test", "tsdown.config.ts"]
+  "include": ["src", "test", "tests", "playwright.config.ts", "tsdown.config.ts"]
 }
