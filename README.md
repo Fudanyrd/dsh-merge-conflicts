@@ -80,6 +80,14 @@ Then append a row to `~/.dsh/profiles/web/cordis.patch.yml`:
 Hard-refresh the browser (Ctrl/Cmd+Shift+R) for the client half; restart the
 `dsh web` host only if you change the host half.
 
+### Quick Validation
+
+Create an empty directory, change to it, use `tools/demo.sh` to create a merge-conflict
+scenario, and open this directory with deepseek-harness. You should see the following
+upon opening the merge-conflict view inside the right sidebar:
+
+![](doc/img/demo.png)
+
 ## Build
 
 ```sh
