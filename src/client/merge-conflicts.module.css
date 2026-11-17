@@ -297,3 +297,145 @@
 .markerSep {
   color: var(--dsw-alias-label-tertiary);
 }
+
+/* Syntax token colors. The token classes are emitted by @lezer/highlight's
+   tag highlighter (see HighlightedCode.tsx); the hues are the one-light /
+   one-dark families from dsh-better-sidebar's one-dark-palette.ts. Surface
+   colors stay theme-token driven; only the syntax families are concrete. */
+.code,
+.raw {
+  --mc-tok-comment: #a0a1a7;
+  --mc-tok-keyword: #a626a4;
+  --mc-tok-string: #50a14f;
+  --mc-tok-number: #986801;
+  --mc-tok-bool: #0184bc;
+  --mc-tok-typeName: #c18401;
+  --mc-tok-propertyName: #e45649;
+  --mc-tok-function: #c18401;
+  --mc-tok-variableName: #e45649;
+  --mc-tok-operator: #383a42;
+  --mc-tok-tagName: #e45649;
+  --mc-tok-attributeName: #986801;
+  --mc-tok-heading: #e45649;
+  --mc-tok-link: #4078f2;
+  --mc-tok-meta: #c18401;
+  --mc-tok-invalid: #e45649;
+}
+
+body[data-ds-dark-theme] .code,
+body[data-ds-dark-theme] .raw {
+  --mc-tok-comment: #5c6370;
+  --mc-tok-keyword: #c678dd;
+  --mc-tok-string: #98c379;
+  --mc-tok-number: #d19a66;
+  --mc-tok-bool: #d19a66;
+  --mc-tok-typeName: #e5c07b;
+  --mc-tok-propertyName: #e06c75;
+  --mc-tok-function: #61afef;
+  --mc-tok-variableName: #e06c75;
+  --mc-tok-operator: #56b6c2;
+  --mc-tok-tagName: #e06c75;
+  --mc-tok-attributeName: #d19a66;
+  --mc-tok-heading: #e06c75;
+  --mc-tok-link: #61afef;
+  --mc-tok-meta: #e5c07b;
+  --mc-tok-invalid: #e06c75;
+}
+
+.code :global(.tok-comment),
+.raw :global(.tok-comment) {
+  color: var(--mc-tok-comment);
+  font-style: italic;
+}
+
+.code :global(.tok-keyword),
+.raw :global(.tok-keyword) {
+  color: var(--mc-tok-keyword);
+}
+
+.code :global(.tok-string),
+.raw :global(.tok-string),
+.code :global(.tok-string2),
+.raw :global(.tok-string2) {
+  color: var(--mc-tok-string);
+}
+
+.code :global(.tok-number),
+.raw :global(.tok-number) {
+  color: var(--mc-tok-number);
+}
+
+.code :global(.tok-bool),
+.raw :global(.tok-bool),
+.code :global(.tok-atom),
+.raw :global(.tok-atom) {
+  color: var(--mc-tok-bool);
+}
+
+.code :global(.tok-typeName),
+.raw :global(.tok-typeName) {
+  color: var(--mc-tok-typeName);
+}
+
+.code :global(.tok-propertyName),
+.raw :global(.tok-propertyName) {
+  color: var(--mc-tok-propertyName);
+}
+
+.code :global(.tok-function),
+.raw :global(.tok-function) {
+  color: var(--mc-tok-function);
+}
+
+.code :global(.tok-variableName),
+.raw :global(.tok-variableName) {
+  color: var(--mc-tok-variableName);
+}
+
+.code :global(.tok-operator),
+.raw :global(.tok-operator) {
+  color: var(--mc-tok-operator);
+}
+
+.code :global(.tok-tagName),
+.raw :global(.tok-tagName) {
+  color: var(--mc-tok-tagName);
+}
+
+.code :global(.tok-attributeName),
+.raw :global(.tok-attributeName) {
+  color: var(--mc-tok-attributeName);
+}
+
+.code :global(.tok-heading),
+.raw :global(.tok-heading) {
+  color: var(--mc-tok-heading);
+  font-weight: 600;
+}
+
+.code :global(.tok-emphasis),
+.raw :global(.tok-emphasis) {
+  font-style: italic;
+}
+
+.code :global(.tok-strong),
+.raw :global(.tok-strong) {
+  font-weight: 600;
+}
+
+.code :global(.tok-link),
+.raw :global(.tok-link) {
+  color: var(--mc-tok-link);
+  text-decoration: underline;
+}
+
+.code :global(.tok-meta),
+.raw :global(.tok-meta) {
+  color: var(--mc-tok-meta);
+}
+
+.code :global(.tok-invalid),
+.raw :global(.tok-invalid) {
+  color: var(--mc-tok-invalid);
+  text-decoration: underline wavy;
+}
